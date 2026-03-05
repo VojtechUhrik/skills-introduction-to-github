@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jednoduchý had</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --text: #e5e7eb;
+        --accent: #22c55e;
+        --danger: #ef4444;
+        --grid: #1f2937;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(circle at top, #1e293b, var(--bg));
+        color: var(--text);
+      }
+
+      .app {
+        width: min(92vw, 520px);
+        background: color-mix(in srgb, var(--panel) 95%, black);
+        border: 1px solid #374151;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
+      }
+
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.3rem;
+      }
+
+      .hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+      }
+
+      .badge {
+        background: #0b1220;
+        border: 1px solid #334155;
+        padding: 0.35rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.92rem;
+      }
+
+      canvas {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 10px;
+        border: 1px solid #374151;
+        background: #0b1020;
+        display: block;
+      }
+
+      .controls {
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      button {
+        background: var(--accent);
+        color: #06240f;
+        border: 0;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 0.5rem 0.8rem;
+        cursor: pointer;
+      }
+
+      .msg {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+      }
+
+      .msg strong {
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1>🐍 Jednoduchý had</h1>
+      <div class="hud">
+        <span class="badge">Skóre: <strong id="score">0</strong></span>
+        <span class="badge">Nejlepší: <strong id="best">0</strong></span>
+      </div>
+      <canvas id="game" width="480" height="480" aria-label="Hra had"></canvas>
+      <div class="controls">
+        <button id="restart" type="button">Restart</button>
+        <div class="msg" id="status">Šipky / WASD pro pohyb.</div>
+      </div>
+    </main>
+
+    <script>
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+      const scoreEl = document.getElementById('score');
+      const bestEl = document.getElementById('best');
+      const statusEl = document.getElementById('status');
+      const restartBtn = document.getElementById('restart');
+
+      const gridCount = 20;
+      const cell = canvas.width / gridCount;
+      const startSpeed = 130;
+
+      let snake;
+      let direction;
+      let nextDirection;
+      let food;
+      let score;
+      let best;
+      let gameOver;
+      let loopId;
+
+      const randomCell = () => Math.floor(Math.random() * gridCount);
+
+      function placeFood() {
+        let candidate;
+        do {
+          candidate = { x: randomCell(), y: randomCell() };
+        } while (snake.some((part) => part.x === candidate.x && part.y === candidate.y));
+        food = candidate;
+      }
+
+      function resetGame() {
+        snake = [
+          { x: 10, y: 10 },
+          { x: 9, y: 10 },
+          { x: 8, y: 10 }
+        ];
+        direction = { x: 1, y: 0 };
+        nextDirection = { ...direction };
+        score = 0;
+        gameOver = false;
+        statusEl.textContent = 'Šipky / WASD pro pohyb.';
+        scoreEl.textContent = score;
+        best = Number(localStorage.getItem('snake-best') ?? 0);
+        bestEl.textContent = best;
+        placeFood();
+        clearInterval(loopId);
+        loopId = setInterval(step, startSpeed);
+        draw();
+      }
+
+      function step() {
+        if (gameOver) return;
+
+        direction = nextDirection;
+        const head = {
+          x: snake[0].x + direction.x,
+          y: snake[0].y + direction.y
+        };
+
+        const out = head.x < 0 || head.y < 0 || head.x >= gridCount || head.y >= gridCount;
+        const hitSelf = snake.some((part) => part.x === head.x && part.y === head.y);
+
+        if (out || hitSelf) {
+          gameOver = true;
+          clearInterval(loopId);
+          statusEl.innerHTML = '<strong>Konec hry!</strong> Klikni na restart.';
+          return;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          score += 1;
+          scoreEl.textContent = score;
+          if (score > best) {
+            best = score;
+            localStorage.setItem('snake-best', String(best));
+            bestEl.textContent = best;
+          }
+          placeFood();
+        } else {
+          snake.pop();
+        }
+
+        draw();
+      }
+
+      function drawGrid() {
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+        ctx.lineWidth = 1;
+        for (let i = 1; i < gridCount; i += 1) {
+          const p = i * cell;
+          ctx.beginPath();
+          ctx.moveTo(p, 0);
+          ctx.lineTo(p, canvas.height);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, p);
+          ctx.lineTo(canvas.width, p);
+          ctx.stroke();
+        }
+      }
+
+      function drawCell(x, y, color, radius = 6) {
+        ctx.fillStyle = color;
+        const px = x * cell;
+        const py = y * cell;
+        const size = cell;
+        ctx.beginPath();
+        ctx.roundRect(px + 1.5, py + 1.5, size - 3, size - 3, radius);
+        ctx.fill();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+
+        drawCell(food.x, food.y, '#ef4444', 8);
+
+        snake.forEach((part, i) => {
+          drawCell(part.x, part.y, i === 0 ? '#22c55e' : '#16a34a', 6);
+        });
+      }
+
+      const directions = {
+        ArrowUp: { x: 0, y: -1 },
+        ArrowDown: { x: 0, y: 1 },
+        ArrowLeft: { x: -1, y: 0 },
+        ArrowRight: { x: 1, y: 0 },
+        w: { x: 0, y: -1 },
+        s: { x: 0, y: 1 },
+        a: { x: -1, y: 0 },
+        d: { x: 1, y: 0 }
+      };
+
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        const next = directions[key];
+        if (!next || gameOver) return;
+
+        const isReverse = next.x === -direction.x && next.y === -direction.y;
+        if (!isReverse) {
+          nextDirection = next;
+        }
+      });
+
+      restartBtn.addEventListener('click', resetGame);
+      resetGame();
+    </script>
+  </body>
+</html>
