@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Městská Trasa — Auto hra</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="panel">
+        <h1>Městská Trasa</h1>
+        <p>
+          Projeď město po vyznačené trase, sbírej body za přesnost a doraz do
+          cíle bez nehody.
+        </p>
+        <ul>
+          <li><strong>↑ / W</strong> plyn</li>
+          <li><strong>↓ / S</strong> brzda / couvání</li>
+          <li><strong>← → / A D</strong> zatáčení</li>
+          <li><strong>R</strong> restart</li>
+        </ul>
+        <div class="hud">
+          <p>Checkpoint: <span id="checkpoint">0</span> / <span id="total">0</span></p>
+          <p>Rychlost: <span id="speed">0</span> km/h</p>
+          <p>Skóre: <span id="score">0</span></p>
+          <p class="status" id="status">Připrav se a vyjeď!</p>
+        </div>
+      </section>
+      <section class="game-wrap">
+        <canvas id="game" width="980" height="620" aria-label="Město"></canvas>
+      </section>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
