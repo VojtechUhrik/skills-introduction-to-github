@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Snake Mobile</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hud">
+        <h1>🐍 Snake Mobile</h1>
+        <div class="stats">
+          <span>Skóre: <strong id="score">0</strong></span>
+          <span>Rekord: <strong id="best">0</strong></span>
+        </div>
+      </header>
+
+      <section class="board-wrap">
+        <canvas id="game" aria-label="Herní plocha"></canvas>
+        <div id="overlay" class="overlay visible">
+          <h2>Začni hru</h2>
+          <p>Tahej po herní ploše nebo používej šipky.</p>
+          <button id="startBtn">Start</button>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Ovládání">
+        <button data-dir="up">▲</button>
+        <div>
+          <button data-dir="left">◀</button>
+          <button data-dir="down">▼</button>
+          <button data-dir="right">▶</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
