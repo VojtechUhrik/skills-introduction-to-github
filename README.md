@@ -1,16 +1,31 @@
-# Introduction to GitHub
+# Snake Mobile (lokální hra)
 
-<img src="https://octodex.github.com/images/Professortocat_v2.png" align="right" height="200px" />
+Jednoduchá, ale vizuálně vyladěná hra Snake optimalizovaná pro mobil.
 
-Hey @VojtechUhrik!
+## Spuštění lokálně
 
-Mona here. I'm done preparing your exercise. Hope you enjoy! 💚
+V kořeni projektu spusť:
 
-Remember, it's self-paced so feel free to take a break! ☕️
+```bash
+python3 -m http.server 8000
+```
 
-[![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/VojtechUhrik/skills-introduction-to-github/issues/1)
+Pak otevři v prohlížeči:
 
----
+- na tomto zařízení: `http://localhost:8000`
+- na mobilu ve stejné Wi‑Fi: `http://IP_ADRESA_POČÍTAČE:8000`
 
-&copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+> Tip: IP adresu zjistíš například přes `hostname -I` (Linux) nebo `ipconfig` (Windows).
 
+## Ovládání
+
+- Tahem (swipe) po herní ploše.
+- Nebo tlačítky šipek pod herní plochou.
+- Na desktopu můžeš použít i klávesy šipek.
+
+## Herní prvky
+
+- Zelený had.
+- Obdélníková herní plocha vhodná pro displej mobilu.
+- Světelné efekty, jemná mřížka, částice po sebrání krmiva.
+- Ukládání rekordu do `localStorage`.
